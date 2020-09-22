@@ -16,7 +16,7 @@ class Item(Resource):
         'store_id',
         type=int,
         required=True,
-        help='THis field cannot be left blank'
+        help='Every item needs a store_id'
     )
 
     @staticmethod
