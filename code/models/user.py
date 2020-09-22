@@ -1,6 +1,3 @@
-import sqlite3
-from typing import Union
-
 from db import db
 
 

@@ -1,4 +1,3 @@
-import sqlite3
 from flask_jwt import jwt_required
 from flask_restful import Resource, reqparse
 
@@ -10,6 +9,12 @@ class Item(Resource):
     parser.add_argument(
         'price',
         type=float,
+        required=True,
+        help='THis field cannot be left blank'
+    )
+    parser.add_argument(
+        'store_id',
+        type=int,
         required=True,
         help='THis field cannot be left blank'
     )
@@ -26,13 +31,14 @@ class Item(Resource):
         # return {'item': item}, 200 if item else 404
 
     @staticmethod
+    @jwt_required()
     def post(name: str) -> (dict, int):
         if ItemModel.find_by_name(name):
             return {'message': f"An item with name '{name}' already exists"}, 400
 
         # data = request.get_json()  # force=True без проверки заголовков типа данных, silent=True не вернёт ошибку
         data = Item.parser.parse_args()
-        item = ItemModel(name, data['price'])
+        item = ItemModel(name, **data)
 
         try:
             item.save_to_db()
@@ -61,7 +67,6 @@ class Item(Resource):
 
         # items = [item for item in items if item['name'] != name]  # list(filter(lambda x: x['name'] != name, items))
 
-
     @staticmethod
     @jwt_required()
     def put(name: str) -> (dict, int):
@@ -70,7 +75,7 @@ class Item(Resource):
         item = ItemModel.find_by_name(name)
 
         if not item:
-            item = ItemModel(name, data['price'])
+            item = ItemModel(name, **data)
         else:
             item.price = data['price']
 
